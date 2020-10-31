@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+  <meta charset="utf-8" />
+  <title>Categorized Line Items</title>
+  <script language="javascript" type="text/javascript">
+  let wsUri = "ws://localhost:8080/websocket";
+  let output;
+  let websocket;
+  let wordCloudData = [];
+  let counter = 0
+
+  function init() {
+    output = document.getElementById("output");
+    initWebSocket();
+  }
+
+  function initWebSocket() {
+    websocket = new WebSocket(wsUri);
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+
+  function onOpen(evt) {
+    console.log("CONNECTED");
+    doSend("Connect Websocket");
+  }
+
+  function onClose(evt) {
+    console.log("DISCONNECTED");
+  }
+
+  function onMessage(evt) {
+    counter++
+    writeToScreen('<span style="color: green;">Data:</span> ' + evt.data)
+    // addEventToWordCloudData(evt);
+  }
+
+  function addEventToWordCloudData(evt) {
+    let json = JSON.parse(evt.data)
+    const values = Object.values(json.headers)
+    for (const value of values) {
+      addValue(value)
+    }
+    if (counter % 100 === 0) {
+      WordCloud(document.getElementById('wordCloudCanvas'), {list: wordCloudData, drawOutOfBound: true, weightFactor: (size) => {
+        let newSize = size;
+        let largest = largestValue();
+        if (largest > 150) {
+          newSize = size / (largest/150);
+        }
+        return newSize
+      }});
+    }
+  }
+
+  // If you don't want to show the entire wordcloud but only the entries that are a certain percentage of the
+  // largest category you can pass in this function as "list" to the WordCloud instead of the entire wordCloudData
+  function filteredData(threshold) {
+    let filteredData = [];
+    let largest = largestValue();
+    for (const data of wordCloudData) {
+      if (data[1] > threshold * largest) {
+        filteredData.push(data)
+      }
+    }
+
+    return filteredData;
+  }
+
+  function largestValue() {
+    let largest = 0
+    for (const data of wordCloudData) {
+      if (data[1] > largest) {
+        largest = data[1]
+      }
+    }
+    return largest
+  }
+
+  function addValue(value) {
+    let present = false
+    for (const data of wordCloudData) {
+      if (data[0] == value) {
+        data[1]++
+        present = true
+        break
+      }
+    }
+    if (!present) {
+      wordCloudData.push([value, 1])
+    }
+  }
+
+  function onError(evt) {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message) {
+    console.log("SENT: " + message);
+    websocket.send(message);
+  }
+
+  function writeToScreen(message) {
+    let pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+  }
+
+  window.addEventListener("load", init, false);
+
+  </script>
+  <div id="output"></div>
