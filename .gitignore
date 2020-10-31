@@ -5,6 +5,7 @@ samples/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/CategorizersConfiguration.java
+*.csv
 
 ### STS ###
 .apt_generated

@@ -21,7 +21,7 @@ public class CategorizationConfiguration {
     /**
      *
      * @param filePublisher the publisher that sends messages to the CategorizationService
-     * @param chainedCategorizer the Categorizers. You need to define your own chained Categorizers that fit your
+     * @param chainedCategorizer the Categorizers. You need to define your own chained Categorizers bean that fits your
      *                           needs. Not publishing mine on Github for privacy reasons.
      * @return a Flux with a tuple containing a categorized LineItem
      */
