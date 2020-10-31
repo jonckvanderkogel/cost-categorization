@@ -29,11 +29,6 @@ public class CategorizationConfiguration {
     public Flux<Tuple2<Category, LineItem>> getCategorizedLineItemFlux(
             @Autowired Publisher<Message<File>> filePublisher,
             @Autowired Categorizer chainedCategorizer) {
-        return new CategorizationService(definiteCategorizer(chainedCategorizer), filePublisher).categorize();
-    }
-
-
-    private DefiniteCategorizer definiteCategorizer(Categorizer chainedCategorizer) {
-        return new DefiniteCategorizer(chainedCategorizer);
+        return new CategorizationService(new DefiniteCategorizer(chainedCategorizer), filePublisher).categorize();
     }
 }
