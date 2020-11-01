@@ -1,17 +1,25 @@
 <!DOCTYPE html>
   <meta charset="utf-8" />
   <title>Categorized Line Items</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
   <script language="javascript" type="text/javascript">
   let wsUri = "ws://localhost:8080/websocket";
   let output;
   let websocket;
-  let wordCloudData = [];
-  let counter = 0
+  let categorizedData = [];
+  let goingToRender = false;
 
   function init() {
     output = document.getElementById("output");
     initWebSocket();
   }
+
+  // from here: https://stackoverflow.com/a/57051556/718849
+  const groupBy = (arr, key) =>
+    arr.reduce(
+            (r, v, _, __, k = v[key]) => ((r[k] || (r[k] = [])).push(v), r),
+            {}
+    );
 
   function initWebSocket() {
     websocket = new WebSocket(wsUri);
@@ -31,65 +39,66 @@
   }
 
   function onMessage(evt) {
-    counter++
-    writeToScreen('<span style="color: green;">Data:</span> ' + evt.data)
-    // addEventToWordCloudData(evt);
+    categorizedData.push(JSON.parse(evt.data));
+    if (!goingToRender) {
+      goingToRender = true;
+      setTimeout(createCharts, 1500);
+    }
   }
 
-  function addEventToWordCloudData(evt) {
-    let json = JSON.parse(evt.data)
-    const values = Object.values(json.headers)
-    for (const value of values) {
-      addValue(value)
-    }
-    if (counter % 100 === 0) {
-      WordCloud(document.getElementById('wordCloudCanvas'), {list: wordCloudData, drawOutOfBound: true, weightFactor: (size) => {
-        let newSize = size;
-        let largest = largestValue();
-        if (largest > 150) {
-          newSize = size / (largest/150);
+  function createCharts() {
+    let af = categorizedData.filter(li => li['transactionType'] === "AF");
+    let bij = categorizedData.filter(li => li['transactionType'] === "BIJ");
+
+    goingToRender = false;
+    drawChart(af, "Af");
+    drawChart(bij, "Bij");
+  }
+
+  const backgroundColors =  ["#5da5da", "#faa43a", "#60bd68", "#f17cb0", "#b2912f", "#b276b2", "#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"]
+
+  function drawChart(data, label) {
+    let grouped = groupBy(data, 'category');
+    let categories = Object.keys(grouped);
+    let values = categories
+            .map(key => grouped[key])
+            .map(group => group.reduce((a, c) => a + c.amount, 0));
+    let total = values.reduce((a, c) => a + c, 0);
+
+    let totalFormatted = (Math.round(total * 100) / 100).toFixed(2);
+    let valuesFormatted = values
+            .map(num => (Math.round(num * 100) / 100).toFixed(2));
+    let thisChartBackgroundColors = backgroundColors.slice(0, values.length - 1);
+
+    let canvas = document.createElement('canvas');
+    canvas.id = uuidv4();
+    canvas.width = 400;
+    canvas.height = 100;
+    document.body.appendChild(canvas);
+
+    new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: categories,
+        datasets: [{
+          backgroundColor: thisChartBackgroundColors,
+          data: valuesFormatted
+        }]
+      },
+      options: {
+        title: {
+          display: true,
+          text: '€' + totalFormatted + ' (' + label + ')'
         }
-        return newSize
-      }});
-    }
+      }
+    });
   }
 
-  // If you don't want to show the entire wordcloud but only the entries that are a certain percentage of the
-  // largest category you can pass in this function as "list" to the WordCloud instead of the entire wordCloudData
-  function filteredData(threshold) {
-    let filteredData = [];
-    let largest = largestValue();
-    for (const data of wordCloudData) {
-      if (data[1] > threshold * largest) {
-        filteredData.push(data)
-      }
-    }
-
-    return filteredData;
-  }
-
-  function largestValue() {
-    let largest = 0
-    for (const data of wordCloudData) {
-      if (data[1] > largest) {
-        largest = data[1]
-      }
-    }
-    return largest
-  }
-
-  function addValue(value) {
-    let present = false
-    for (const data of wordCloudData) {
-      if (data[0] == value) {
-        data[1]++
-        present = true
-        break
-      }
-    }
-    if (!present) {
-      wordCloudData.push([value, 1])
-    }
+  function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   function onError(evt) {
@@ -111,4 +120,6 @@
   window.addEventListener("load", init, false);
 
   </script>
+<!--  <canvas id="afCanvas" width="400" height="100" aria-label="Af" role="img"></canvas>-->
+<!--  <canvas id="bijCanvas" width="400" height="100" aria-label="Bij" role="img"></canvas>-->
   <div id="output"></div>

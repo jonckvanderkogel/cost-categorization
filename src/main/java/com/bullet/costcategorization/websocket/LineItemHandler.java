@@ -27,6 +27,7 @@ public class LineItemHandler implements WebSocketHandler {
     public Mono<Void> handle(WebSocketSession webSocketSession) {
         return webSocketSession
                 .send(categorizedLineItemsflux
+                        .filter(p -> !p._1.equals(Category.SAVINGS))
                         .map(message -> {
                             LineItemDTO dto = new LineItemDTO(message, dateTimeFormatter);
                             try {

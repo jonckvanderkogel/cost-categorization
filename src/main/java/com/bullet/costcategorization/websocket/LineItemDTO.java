@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 public class LineItemDTO {
     private String category;
     private String date;
+    private String year;
+    private String month;
     private String description;
     private String transactionType;
     private double amount;
@@ -20,6 +22,8 @@ public class LineItemDTO {
         var lineItem = categorizedLineItem._2;
         this.category = categorizedLineItem._1.toString();
         this.date = dateTimeFormatter.format(lineItem.getDate());
+        this.year = String.valueOf(lineItem.getDate().getYear());
+        this.month = lineItem.getDate().getMonth().toString();
         this.description = lineItem.getDescription();
         this.transactionType = lineItem.getTransactionType().toString();
         this.amount = lineItem.getAmount();
