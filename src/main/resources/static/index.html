@@ -63,6 +63,20 @@
       "DECEMBER": 12
     };
 
+    let categoryColors = {
+      "SALARY": "#5da5da",
+      "MORTGAGE": "#faa43a",
+      "TAX": "#60bd68",
+      "INSURANCE": "#f17cb0",
+      "FOOD": "#b2912f",
+      "UTILITIES": "#b276b2",
+      "MEDICAL": "#3e95cd",
+      "SUBSCRIPTIONS": "#8e5ea2",
+      "SPORT": "#3cba9f",
+      "SAVINGS": "#e8c3b9",
+      "REST": "#c45850"
+    };
+
     function createCharts() {
       const elements = document.getElementsByTagName('canvas');
       while (elements.length > 0) elements[0].remove();
@@ -87,8 +101,6 @@
       return [af, bij];
     }
 
-    const backgroundColors =  ["#5da5da", "#faa43a", "#60bd68", "#f17cb0", "#b2912f", "#b276b2", "#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"]
-
     function drawChart(data, label) {
       let grouped = groupBy(data, 'category');
       console.log(label);
@@ -102,7 +114,8 @@
       let totalFormatted = (Math.round(total * 100) / 100).toFixed(2);
       let valuesFormatted = values
               .map(num => (Math.round(num * 100) / 100).toFixed(2));
-      let thisChartBackgroundColors = backgroundColors.slice(0, values.length - 1);
+
+      let thisChartBackgroundColors = categories.map(category => categoryColors[category]);
 
       let canvas = document.createElement('canvas');
       canvas.id = uuidv4();
