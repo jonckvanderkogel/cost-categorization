@@ -9,14 +9,14 @@ import java.time.format.DateTimeFormatter;
 
 @Getter
 public class LineItemDTO {
-    private String category;
-    private String date;
-    private String year;
-    private String month;
-    private String description;
-    private String transactionType;
-    private double amount;
-    private String statement;
+    private final String category;
+    private final String date;
+    private final String year;
+    private final String month;
+    private final String description;
+    private final String transactionType;
+    private final double amount;
+    private final String statement;
 
     public LineItemDTO(Tuple2<Category,LineItem> categorizedLineItem, DateTimeFormatter dateTimeFormatter) {
         var lineItem = categorizedLineItem._2;
