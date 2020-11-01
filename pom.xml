@@ -18,6 +18,8 @@
 		<java.version>15</java.version>
 		<opencsv.version>5.3</opencsv.version>
 		<vavr.version>0.10.3</vavr.version>
+		<spring-integration-file.version>5.3.3.RELEASE</spring-integration-file.version>
+		<awaitility.version>4.0.3</awaitility.version>
 	</properties>
 
 	<dependencies>
@@ -38,7 +40,7 @@
 		<dependency>
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-file</artifactId>
-			<version>5.3.3.RELEASE</version>
+			<version>${spring-integration-file.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -64,7 +66,7 @@
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
-			<version>4.0.3</version>
+			<version>${awaitility.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
