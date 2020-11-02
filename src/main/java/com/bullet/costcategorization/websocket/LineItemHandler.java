@@ -27,20 +27,22 @@ public class LineItemHandler implements WebSocketHandler {
     public Mono<Void> handle(WebSocketSession webSocketSession) {
         return webSocketSession
                 .send(categorizedLineItemsflux
-                        .filter(p -> !p._1.equals(Category.SAVINGS))
-                        .map(message -> {
-                            LineItemDTO dto = new LineItemDTO(message, dateTimeFormatter);
-                            try {
-                                return objectMapper.writeValueAsString(dto);
-                            } catch (JsonProcessingException e) {
-                                return "Error while serializing to JSON";
-                            }
-                        })
+                        .filter(p -> !p._1.equals(Category.SAVINGS)) // filter out savings as it screws up the overview
+                        .map(this::transformMessage)
                         .map(webSocketSession::textMessage))
                 .and(webSocketSession
                         .receive()
                         .map(WebSocketMessage::getPayloadAsText)
                         .log()
                 );
+    }
+
+    private String transformMessage(Tuple2<Category, LineItem> message) {
+        LineItemDTO dto = new LineItemDTO(message, dateTimeFormatter);
+        try {
+            return objectMapper.writeValueAsString(dto);
+        } catch (JsonProcessingException e) {
+            return "Error while serializing to JSON";
+        }
     }
 }
