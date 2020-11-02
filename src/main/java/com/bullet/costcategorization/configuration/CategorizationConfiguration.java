@@ -6,11 +6,9 @@ import com.bullet.costcategorization.service.CategorizationService;
 import com.bullet.costcategorization.service.Categorizer;
 import com.bullet.costcategorization.service.DefiniteCategorizer;
 import io.vavr.Tuple2;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -20,15 +18,15 @@ public class CategorizationConfiguration {
 
     /**
      *
-     * @param filePublisher the publisher that sends messages to the CategorizationService
+     * @param fileFlux the flux that sends messages to the CategorizationService
      * @param chainedCategorizer the Categorizers. You need to define your own chained Categorizers bean that fits your
      *                           needs. Not publishing mine on Github for privacy reasons.
      * @return a Flux with a tuple containing a categorized LineItem
      */
     @Bean
     public Flux<Tuple2<Category, LineItem>> getCategorizedLineItemFlux(
-            @Autowired Publisher<Message<File>> filePublisher,
+            @Autowired Flux<File> fileFlux,
             @Autowired Categorizer chainedCategorizer) {
-        return new CategorizationService(new DefiniteCategorizer(chainedCategorizer), filePublisher).categorize();
+        return new CategorizationService(new DefiniteCategorizer(chainedCategorizer), fileFlux).categorize();
     }
 }

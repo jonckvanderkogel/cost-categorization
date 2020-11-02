@@ -6,6 +6,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import io.vavr.Tuple2;
 import lombok.RequiredArgsConstructor;
 import org.reactivestreams.Publisher;
+import org.springframework.integration.channel.FluxMessageChannel;
 import org.springframework.messaging.Message;
 import reactor.core.publisher.Flux;
 
@@ -17,21 +18,17 @@ import java.util.stream.BaseStream;
 @RequiredArgsConstructor
 public class CategorizationService {
     private final DefiniteCategorizer categorizer;
-    private final Publisher<Message<File>> filePublisher;
+    private final Flux<File> fileFlux;
 
     public Flux<Tuple2<Category, LineItem>> categorize() {
         return readLineItems()
                 .map(li -> new Tuple2<>(categorizer.categorize(li), li));
     }
 
-    private Flux<Message<File>> fileFlux() {
-        return Flux.from(filePublisher);
-    }
-
     private Flux<LineItem> readLineItems() {
-        return fileFlux()
+        return fileFlux
                 .flatMap(message -> Flux.using(
-                        () -> new CsvToBeanBuilder<LineItem>(createFileReader(message.getPayload())).withSkipLines(1)
+                        () -> new CsvToBeanBuilder<LineItem>(createFileReader(message)).withSkipLines(1)
                                 .withSeparator(';')
                                 .withType(LineItem.class)
                                 .build()

@@ -6,8 +6,6 @@ import io.vavr.Tuple2;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.GenericMessage;
 import reactor.adapter.JdkFlowAdapter;
 
 import java.io.File;
@@ -26,15 +24,14 @@ public class CategorizationServiceTests {
         Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(Category.INSURANCE) : Optional.empty();
         var definiteCategorizer = new DefiniteCategorizer(firstCategorizer.orElse(nextCategorizer));
 
-        var filePublisher = new SubmissionPublisher<Message<File>>();
-        GenericMessage<File> fileMessage = new GenericMessage<>(new File("src/test/resources/test.csv"));
+        var filePublisher = new SubmissionPublisher<File>();
 
         var categorizationService = new CategorizationService(definiteCategorizer, JdkFlowAdapter.flowPublisherToFlux(filePublisher));
 
         var callback = new Callback();
         categorizationService.categorize().subscribe(new TestSubscriber(callback));
 
-        filePublisher.submit(fileMessage);
+        filePublisher.submit(new File("src/test/resources/test.csv"));
         filePublisher.close();
 
         await().atMost(2, TimeUnit.SECONDS).untilAsserted(
