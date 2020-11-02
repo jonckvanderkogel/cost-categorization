@@ -23,7 +23,7 @@ public class WebsocketConfiguration {
     @Bean
     public HandlerMapping webSocketHandlerMapping(@Autowired Flux<Tuple2<Category, LineItem>> lineItemFlux) {
         Map<String, WebSocketHandler> urlMap = new HashMap<>();
-        urlMap.put("/websocket", new LineItemHandler(lineItemFlux, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        urlMap.put("/websocket", new LineItemHandler(lineItemFlux, DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setOrder(1);

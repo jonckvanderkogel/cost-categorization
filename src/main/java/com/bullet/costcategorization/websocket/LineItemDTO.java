@@ -16,7 +16,7 @@ public class LineItemDTO {
     private final String description;
     private final String transactionType;
     private final double amount;
-    private final String statement;
+//    private final String statement; --> removing as it clutters the view but could be helpful in some situations
 
     public LineItemDTO(Tuple2<Category,LineItem> categorizedLineItem, DateTimeFormatter dateTimeFormatter) {
         var lineItem = categorizedLineItem._2;
@@ -27,6 +27,6 @@ public class LineItemDTO {
         this.description = lineItem.getDescription();
         this.transactionType = lineItem.getTransactionType().toString();
         this.amount = lineItem.getAmount();
-        this.statement = lineItem.getStatement();
+//        this.statement = lineItem.getStatement();
     }
 }

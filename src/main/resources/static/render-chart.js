@@ -31,6 +31,7 @@ function onOpen(evt) {
 
 function onClose(evt) {
     console.log("DISCONNECTED");
+    doSend("Disconnect Websocket");
 }
 
 function onMessage(evt) {
@@ -110,11 +111,37 @@ function drawChart(data, label) {
 
     let thisChartBackgroundColors = categories.map(category => categoryColors[category]);
 
-    let canvas = document.createElement('canvas');
+    let div = document.createElement("div");
+
+    let canvas = document.createElement("canvas");
     canvas.id = uuidv4();
     canvas.width = 400;
     canvas.height = 100;
-    document.body.appendChild(canvas);
+
+    div.appendChild(canvas);
+    let table = document.createElement('table')
+
+    div.appendChild(table);
+
+    let tableData = {
+        headings: Object.keys(data[0]),
+        data: []
+    };
+
+    for ( let i = 0; i < data.length; i++ ) {
+        tableData.data[i] = [];
+        for (let p in data[i]) {
+            if( data[i].hasOwnProperty(p) ) {
+                tableData.data[i].push(data[i][p]);
+            }
+        }
+    }
+
+    new simpleDatatables.DataTable(table, {
+        data: tableData
+    });
+
+    document.body.appendChild(div);
 
     new Chart(canvas, {
         type: 'pie',
