@@ -34,7 +34,7 @@ public class LineItem {
     @CsvBindByPosition(position = 5)
     private TransactionType transactionType;
 
-    @CsvBindByPosition(position = 6)
+    @CsvBindByPosition(position = 6, locale = "nl-NL")
     @CsvNumber("#,##")
     private double amount;
 
