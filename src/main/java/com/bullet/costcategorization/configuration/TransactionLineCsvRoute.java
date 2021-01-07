@@ -5,11 +5,9 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.reactive.streams.api.CamelReactiveStreamsService;
 import org.apache.camel.impl.ThrottlingInflightRoutePolicy;
 import org.reactivestreams.Publisher;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
-@Component
 public class TransactionLineCsvRoute extends RouteBuilder {
     private final CamelReactiveStreamsService camelRs;
 
