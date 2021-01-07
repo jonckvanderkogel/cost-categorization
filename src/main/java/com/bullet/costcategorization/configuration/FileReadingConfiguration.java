@@ -24,7 +24,7 @@ public class FileReadingConfiguration {
                 .from(Files.inboundAdapter(new File("./input"))
                                 .patternFilter("*.csv"),
                         e -> e.poller(Pollers.fixedDelay(1000)))
-                .channel("fileInputChannel")
+                .channel(fileInputChannel())
                 .get();
     }
 
