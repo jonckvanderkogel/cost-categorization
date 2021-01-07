@@ -22,11 +22,10 @@ public class CategorizationServiceTests {
     public void shouldEmitCategorizedLineItem() {
         Categorizer firstCategorizer = (li) -> li.getDescription().equals("Foo") ? Optional.of(Category.MORTGAGE) : Optional.empty();
         Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(Category.INSURANCE) : Optional.empty();
-        var definiteCategorizer = new DefiniteCategorizer(firstCategorizer.orElse(nextCategorizer));
 
         var rawLinesPublisher = new SubmissionPublisher<String>();
 
-        var categorizationService = new CategorizationService(definiteCategorizer, JdkFlowAdapter.flowPublisherToFlux(rawLinesPublisher));
+        var categorizationService = new CategorizationService(firstCategorizer.orElse(nextCategorizer), JdkFlowAdapter.flowPublisherToFlux(rawLinesPublisher));
 
         var callback = new Callback();
         categorizationService.categorize().subscribe(new TestSubscriber(callback));

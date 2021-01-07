@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class LineItemParser {
+public class LineItemFactory {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.forLanguageTag("nl-NL"));
 

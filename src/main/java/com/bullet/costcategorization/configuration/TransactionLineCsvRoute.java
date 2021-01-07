@@ -15,10 +15,6 @@ import java.io.File;
 public class TransactionLineCsvRoute extends RouteBuilder {
     private final CamelReactiveStreamsService camelRs;
 
-    /*
-    Here you can read from Claus Ibsen that the file is only read into memory on demand:
-    https://stackoverflow.com/questions/9384102/camel-file-component-but-only-pass-file-name-as-body
-     */
     @Override
     public void configure() {
         ThrottlingInflightRoutePolicy policy = new ThrottlingInflightRoutePolicy();

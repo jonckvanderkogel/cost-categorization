@@ -4,7 +4,6 @@ import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
 import com.bullet.costcategorization.service.CategorizationService;
 import com.bullet.costcategorization.service.Categorizer;
-import com.bullet.costcategorization.service.DefiniteCategorizer;
 import io.vavr.Tuple2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +24,6 @@ public class CategorizationConfiguration {
     public Flux<Tuple2<Category, LineItem>> getCategorizedLineItemFlux(
             @Autowired Flux<String> rawLinesFlux,
             @Autowired Categorizer chainedCategorizer) {
-        return new CategorizationService(new DefiniteCategorizer(chainedCategorizer), rawLinesFlux).categorize();
+        return new CategorizationService(chainedCategorizer, rawLinesFlux).categorize();
     }
 }

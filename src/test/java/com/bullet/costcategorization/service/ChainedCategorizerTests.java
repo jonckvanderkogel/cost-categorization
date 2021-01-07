@@ -29,7 +29,7 @@ public class ChainedCategorizerTests {
 
         var result = chainedCategorizer.categorize(produceLineItem());
 
-        Assertions.assertEquals(Category.INSURANCE, result.get());
+        Assertions.assertEquals(Category.INSURANCE, result);
     }
 
     @Test
@@ -41,6 +41,6 @@ public class ChainedCategorizerTests {
 
         var result = chainedCategorizer.categorize(produceLineItem());
 
-        Assertions.assertEquals(Category.MORTGAGE, result.get());
+        Assertions.assertEquals(Category.MORTGAGE, result);
     }
 }

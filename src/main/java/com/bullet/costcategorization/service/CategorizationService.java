@@ -2,7 +2,7 @@ package com.bullet.costcategorization.service;
 
 import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
-import com.bullet.costcategorization.domain.LineItemParser;
+import com.bullet.costcategorization.domain.LineItemFactory;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import io.vavr.Tuple2;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
 public class CategorizationService {
-    private final DefiniteCategorizer categorizer;
+    private final Categorizer categorizer;
     private final Flux<String> rawLinesFlux;
 
     private final static CSVParser CSV_PARSER = new CSVParserBuilder()
@@ -27,9 +27,8 @@ public class CategorizationService {
     private Flux<LineItem> parseRawLines() {
         return rawLinesFlux
                 .map(this::parseLine)
-                .map(a -> LineItemParser.parseStringData(a[0], a[1], a[5], a[6], a[8]));
+                .map(a -> LineItemFactory.parseStringData(a[0], a[1], a[5], a[6], a[8]));
     }
-
 
     @SneakyThrows
     private String[] parseLine(String rawLine) {
