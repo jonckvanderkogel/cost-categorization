@@ -51,3 +51,11 @@ public class CategorizersConfiguration {
     }
 }
 ```
+
+# Demonstrating Reactive Streams
+To see how the Reactive Stream is really able to keep the memory usage low, start the app as follows:
+```
+mvn clean spring-boot:run -Dspring-boot.run.jvmArguments="-Xmx30m"
+```
+
+Then have the application process a really big file and monitor the memory usage.

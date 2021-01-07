@@ -15,15 +15,15 @@ public class CategorizationConfiguration {
 
     /**
      *
-     * @param rawLinesFlux the flux that sends the unparsed CSV lines to the CategorizationService
+     * @param lineItemFlux the flux that sends the parsed CSV lines to the CategorizationService
      * @param chainedCategorizer the Categorizers. You need to define your own chained Categorizers bean that fits your
      *                           needs. Not publishing mine on Github for privacy reasons.
      * @return a Flux with a tuple containing a categorized LineItem
      */
     @Bean
     public Flux<Tuple2<Category, LineItem>> getCategorizedLineItemFlux(
-            @Autowired Flux<String> rawLinesFlux,
+            @Autowired Flux<LineItem> lineItemFlux,
             @Autowired Categorizer chainedCategorizer) {
-        return new CategorizationService(chainedCategorizer, rawLinesFlux).categorize();
+        return new CategorizationService(chainedCategorizer).categorize(lineItemFlux);
     }
 }
