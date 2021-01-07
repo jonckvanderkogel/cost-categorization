@@ -8,8 +8,6 @@ import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.io.File;
-
 @RequiredArgsConstructor
 @Component
 public class TransactionLineCsvRoute extends RouteBuilder {
