@@ -5,9 +5,20 @@ import com.bullet.costcategorization.domain.LineItem;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public class ChainedCategorizerTests {
+
+    private LineItem produceLineItem() {
+        return new LineItem(
+                LocalDate.of(2021, 1, 7),
+                "foo bar",
+                LineItem.TransactionType.BIJ,
+                1.5,
+                "bar foo"
+        );
+    }
 
     @Test
     public void shouldTakeNextWhenFirstReturnsEmpty() {
@@ -16,7 +27,7 @@ public class ChainedCategorizerTests {
 
         var chainedCategorizer = firstCategorizer.orElse(nextCategorizer);
 
-        var result = chainedCategorizer.categorize(new LineItem());
+        var result = chainedCategorizer.categorize(produceLineItem());
 
         Assertions.assertEquals(Category.INSURANCE, result.get());
     }
@@ -28,7 +39,7 @@ public class ChainedCategorizerTests {
 
         var chainedCategorizer = firstCategorizer.orElse(nextCategorizer);
 
-        var result = chainedCategorizer.categorize(new LineItem());
+        var result = chainedCategorizer.categorize(produceLineItem());
 
         Assertions.assertEquals(Category.MORTGAGE, result.get());
     }

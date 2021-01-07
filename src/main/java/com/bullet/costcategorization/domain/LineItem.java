@@ -1,12 +1,16 @@
 package com.bullet.costcategorization.domain;
 
-import com.opencsv.bean.CsvBindByPosition;
-import com.opencsv.bean.CsvDate;
-import com.opencsv.bean.CsvNumber;
+import io.vavr.Lazy;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 /*
 0 - "Datum"
@@ -23,25 +27,22 @@ import java.time.LocalDate;
  */
 @ToString
 @Getter
+@RequiredArgsConstructor
 public class LineItem {
-    @CsvBindByPosition(position = 0)
-    @CsvDate("yyyyMMdd")
-    private LocalDate date;
-
-    @CsvBindByPosition(position = 1)
-    private String description;
-
-    @CsvBindByPosition(position = 5)
-    private TransactionType transactionType;
-
-    @CsvBindByPosition(position = 6, locale = "nl-NL")
-    @CsvNumber("#,##")
-    private double amount;
-
-    @CsvBindByPosition(position = 8)
-    private String statement;
+    private final LocalDate date;
+    private final String description;
+    private final TransactionType transactionType;
+    private final double amount;
+    private final String statement;
 
     public enum TransactionType {
-        AF,BIJ;
+        AF,BIJ,UNKNOWN;
+
+        private static final Lazy<Map<String, TransactionType>> stringToEnum = Lazy.of(() -> Stream.of(values())
+                .collect(toMap(Object::toString, Function.identity())));
+
+        public static TransactionType fromString(final String name) {
+            return stringToEnum.get().getOrDefault(name.toUpperCase(), UNKNOWN);
+        }
     }
 }

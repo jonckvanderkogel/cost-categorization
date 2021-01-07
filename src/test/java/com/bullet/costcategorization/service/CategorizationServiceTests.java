@@ -8,13 +8,13 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.adapter.JdkFlowAdapter;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.FileProcessing.streamLinesFromFile;
 
 public class CategorizationServiceTests {
 
@@ -24,15 +24,18 @@ public class CategorizationServiceTests {
         Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(Category.INSURANCE) : Optional.empty();
         var definiteCategorizer = new DefiniteCategorizer(firstCategorizer.orElse(nextCategorizer));
 
-        var filePublisher = new SubmissionPublisher<File>();
+        var rawLinesPublisher = new SubmissionPublisher<String>();
 
-        var categorizationService = new CategorizationService(definiteCategorizer, JdkFlowAdapter.flowPublisherToFlux(filePublisher));
+        var categorizationService = new CategorizationService(definiteCategorizer, JdkFlowAdapter.flowPublisherToFlux(rawLinesPublisher));
 
         var callback = new Callback();
         categorizationService.categorize().subscribe(new TestSubscriber(callback));
 
-        filePublisher.submit(new File("src/test/resources/test.csv"));
-        filePublisher.close();
+        streamLinesFromFile("test.csv")
+                .skip(1)
+                .forEach(rawLinesPublisher::submit);
+
+        rawLinesPublisher.close();
 
         await().atMost(2, TimeUnit.SECONDS).untilAsserted(
                 () -> {

@@ -2,44 +2,37 @@ package com.bullet.costcategorization.service;
 
 import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
-import com.opencsv.bean.CsvToBeanBuilder;
+import com.bullet.costcategorization.domain.LineItemParser;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import io.vavr.Tuple2;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import reactor.core.publisher.Flux;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.stream.BaseStream;
 
 @RequiredArgsConstructor
 public class CategorizationService {
     private final DefiniteCategorizer categorizer;
-    private final Flux<File> fileFlux;
+    private final Flux<String> rawLinesFlux;
+
+    private final static CSVParser CSV_PARSER = new CSVParserBuilder()
+            .withSeparator(';')
+            .build();
 
     public Flux<Tuple2<Category, LineItem>> categorize() {
-        return readLineItems()
+        return parseRawLines()
                 .map(li -> new Tuple2<>(categorizer.categorize(li), li));
     }
 
-    private Flux<LineItem> readLineItems() {
-        return fileFlux
-                .flatMap(message -> Flux.using(
-                        () -> new CsvToBeanBuilder<LineItem>(createFileReader(message)).withSkipLines(1)
-                                .withSeparator(';')
-                                .withType(LineItem.class)
-                                .build()
-                                .stream(),
-                        Flux::fromStream,
-                        BaseStream::close)
-                );
+    private Flux<LineItem> parseRawLines() {
+        return rawLinesFlux
+                .map(this::parseLine)
+                .map(a -> LineItemParser.parseStringData(a[0], a[1], a[5], a[6], a[8]));
     }
 
-    private FileReader createFileReader(File file) {
-        try {
-            return new FileReader(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+    @SneakyThrows
+    private String[] parseLine(String rawLine) {
+        return CSV_PARSER.parseLine(rawLine);
     }
 }
