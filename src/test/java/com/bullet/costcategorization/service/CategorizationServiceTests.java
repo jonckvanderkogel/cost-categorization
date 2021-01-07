@@ -2,11 +2,9 @@ package com.bullet.costcategorization.service;
 
 import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
-import com.bullet.costcategorization.domain.LineItemFactory;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import io.vavr.Tuple2;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
