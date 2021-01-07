@@ -72,7 +72,7 @@ let categoryColors = {
 };
 
 function createCharts() {
-    const elements = document.getElementsByTagName('canvas');
+    const elements = document.getElementsByTagName('div');
     while (elements.length > 0) elements[0].remove();
 
     let grouped = groupBy(categorizedData, 'month');
@@ -97,8 +97,8 @@ function splitData(data) {
 
 function drawChart(data, label) {
     let grouped = groupBy(data, 'category');
-    console.log(label);
-    console.log(grouped);
+    // console.log(label);
+    // console.log(grouped);
     let categories = Object.keys(grouped);
     let values = categories
         .map(key => grouped[key])

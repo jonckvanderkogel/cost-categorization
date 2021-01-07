@@ -19,7 +19,6 @@ import java.util.Map;
 
 @Configuration
 public class WebsocketConfiguration {
-
     @Bean
     public HandlerMapping webSocketHandlerMapping(@Autowired Flux<Tuple2<Category, LineItem>> lineItemFlux) {
         Map<String, WebSocketHandler> urlMap = new HashMap<>();

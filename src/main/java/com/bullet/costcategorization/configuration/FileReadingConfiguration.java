@@ -13,7 +13,6 @@ import java.io.File;
 
 @Configuration
 public class FileReadingConfiguration {
-
     @Bean
     public FluxMessageChannel fileInputChannel() {
         return new FluxMessageChannel();
@@ -22,7 +21,7 @@ public class FileReadingConfiguration {
     @Bean
     public IntegrationFlow fileReadingFlow() {
         return IntegrationFlows
-                .from(Files.inboundAdapter(new File("."))
+                .from(Files.inboundAdapter(new File("./input"))
                                 .patternFilter("*.csv"),
                         e -> e.poller(Pollers.fixedDelay(1000)))
                 .channel("fileInputChannel")
