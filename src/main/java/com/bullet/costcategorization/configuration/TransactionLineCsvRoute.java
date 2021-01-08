@@ -18,7 +18,7 @@ public class TransactionLineCsvRoute extends RouteBuilder {
 
         from("file:input/?include=.*\\.csv&move=successImport&moveFailed=failImport")
                 .routePolicy(policy)
-                .split().tokenize("\n", 1)
+                .split().tokenize(System.lineSeparator(), 1)
                 .streaming()
                 .choice()
                 .when(simple("${property.CamelSplitIndex} > 0"))
@@ -29,6 +29,8 @@ public class TransactionLineCsvRoute extends RouteBuilder {
 
     public Flux<String> getRawLinesFlux() {
         Publisher<String> lineItems = camelRs.fromStream("rawLines", String.class);
+
+        Flux.from(lineItems).subscribe(System.out::println);
 
         return Flux.from(lineItems);
     }
