@@ -2,100 +2,40 @@ package com.bullet.costcategorization.service;
 
 import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import io.vavr.Tuple2;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
+import java.time.LocalDate;
 import java.util.Optional;
-import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.FileProcessing.streamLinesFromFile;
+import static com.bullet.costcategorization.domain.Category.INSURANCE;
 
 public class CategorizationServiceTests {
-    private final static CSVParser CSV_PARSER = new CSVParserBuilder()
-            .withSeparator(';')
-            .build();
 
     @Test
     public void shouldEmitCategorizedLineItem() {
         Categorizer firstCategorizer = (li) -> li.getDescription().equals("Foo") ? Optional.of(Category.MORTGAGE) : Optional.empty();
-        Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(Category.INSURANCE) : Optional.empty();
-
-        var rawLinesPublisher = new SubmissionPublisher<LineItem>();
+        Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(INSURANCE) : Optional.empty();
 
         var categorizationService = new CategorizationService(firstCategorizer.orElse(nextCategorizer));
 
-        var callback = new Callback();
-        categorizationService
-                .categorize(JdkFlowAdapter.flowPublisherToFlux(rawLinesPublisher))
-                .subscribe(new TestSubscriber(callback));
+        Flux<LineItem> lineItemFlux = Flux.just(new LineItem(
+                LocalDate.of(2021, 1, 20),
+                "Bar",
+                LineItem.TransactionType.AF,
+                12.34,
+                "FooBar"
+        ));
 
-        CsvParseService csvParseService = new CsvParseService();
+        Predicate<Tuple2<Category, LineItem>> categoryPredicate = (t) -> INSURANCE.equals(t._1());
 
-        csvParseService
-                .parseRawLines(Flux.fromStream(
-                        streamLinesFromFile("test.csv")
-                                .skip(1)
-                        )
-                )
-                .doOnNext(rawLinesPublisher::submit)
-                .doOnComplete(() -> rawLinesPublisher.close())
-                .subscribe();
-
-        await().atMost(2, TimeUnit.SECONDS).untilAsserted(
-                () -> {
-                    assertEquals(Category.INSURANCE, callback.getCategory());
-                }
-        );
-    }
-
-    private static class Callback {
-        Tuple2<Category, LineItem> tuple;
-
-        public void callMe(Tuple2<Category, LineItem> tuple) {
-            this.tuple = tuple;
-        }
-
-        public Category getCategory() {
-            if (tuple != null) {
-                return tuple._1;
-            } else {
-                return Category.REST;
-            }
-        }
-    }
-
-    private static class TestSubscriber implements Subscriber<Tuple2<Category, LineItem>> {
-        private Callback callback;
-
-        public TestSubscriber(Callback callback) {
-            this.callback = callback;
-        }
-
-        @Override
-        public void onSubscribe(Subscription s) {
-            s.request(1);
-        }
-
-        @Override
-        public void onNext(Tuple2<Category, LineItem> tuple) {
-            callback.callMe(tuple);
-        }
-
-        @Override
-        public void onError(Throwable t) {
-        }
-
-        @Override
-        public void onComplete() {
-        }
+        StepVerifier
+                .create(categorizationService.categorize(lineItemFlux))
+                .expectNextMatches(categoryPredicate)
+                .expectComplete()
+                .verify();
     }
 }

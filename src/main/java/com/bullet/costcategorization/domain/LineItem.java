@@ -36,10 +36,14 @@ public class LineItem {
     private final String statement;
 
     public enum TransactionType {
-        AF,BIJ,UNKNOWN;
+        AF, BIJ, UNKNOWN;
 
-        private static final Lazy<Map<String, TransactionType>> stringToEnum = Lazy.of(() -> Stream.of(values())
-                .collect(toMap(Object::toString, Function.identity())));
+        private static final Lazy<Map<String, TransactionType>> stringToEnum = Lazy.of(
+                () -> Stream.of(values())
+                        .collect(
+                                toMap(Object::toString, Function.identity())
+                        )
+        );
 
         public static TransactionType fromString(final String name) {
             return stringToEnum.get().getOrDefault(name.toUpperCase(), UNKNOWN);
