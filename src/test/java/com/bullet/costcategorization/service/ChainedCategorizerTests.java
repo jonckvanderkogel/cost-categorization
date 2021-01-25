@@ -2,11 +2,12 @@ package com.bullet.costcategorization.service;
 
 import com.bullet.costcategorization.domain.Category;
 import com.bullet.costcategorization.domain.LineItem;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChainedCategorizerTests {
 
@@ -29,7 +30,7 @@ public class ChainedCategorizerTests {
 
         var result = chainedCategorizer.categorize(produceLineItem());
 
-        Assertions.assertEquals(Category.INSURANCE, result);
+        assertEquals(Category.INSURANCE, result);
     }
 
     @Test
@@ -41,6 +42,6 @@ public class ChainedCategorizerTests {
 
         var result = chainedCategorizer.categorize(produceLineItem());
 
-        Assertions.assertEquals(Category.MORTGAGE, result);
+        assertEquals(Category.MORTGAGE, result);
     }
 }

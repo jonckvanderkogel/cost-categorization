@@ -3,7 +3,6 @@ package com.bullet.costcategorization.configuration;
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.reactive.streams.api.CamelReactiveStreamsService;
-import org.apache.camel.impl.ThrottlingInflightRoutePolicy;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
@@ -13,11 +12,7 @@ public class TransactionLineCsvRoute extends RouteBuilder {
 
     @Override
     public void configure() {
-        ThrottlingInflightRoutePolicy policy = new ThrottlingInflightRoutePolicy();
-        policy.setMaxInflightExchanges(10);
-
         from("file:input/?include=.*\\.csv&move=successImport&moveFailed=failImport")
-                .routePolicy(policy)
                 .split().tokenize(System.lineSeparator(), 1)
                 .streaming()
                 .choice()
@@ -29,8 +24,6 @@ public class TransactionLineCsvRoute extends RouteBuilder {
 
     public Flux<String> getRawLinesFlux() {
         Publisher<String> lineItems = camelRs.fromStream("rawLines", String.class);
-
-        Flux.from(lineItems).subscribe(System.out::println);
 
         return Flux.from(lineItems);
     }
