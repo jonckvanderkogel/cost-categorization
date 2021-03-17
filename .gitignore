@@ -4,7 +4,7 @@ samples/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-**/CategorizersConfiguration.java
+**/TransformersConfiguration.java
 *.csv
 
 ### STS ###
