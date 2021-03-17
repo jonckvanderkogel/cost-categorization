@@ -8,10 +8,10 @@ import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
 public class CategorizationService {
-    private final Categorizer categorizer;
+    private final Transformer<LineItem, Category> transformer;
 
     public Flux<Tuple2<Category, LineItem>> categorize(Flux<LineItem> lineItemFlux) {
         return lineItemFlux
-                .map(li -> new Tuple2<>(categorizer.categorize(li), li));
+                .map(li -> new Tuple2<>(transformer.transform(li, (l) -> Category.REST), li));
     }
 }

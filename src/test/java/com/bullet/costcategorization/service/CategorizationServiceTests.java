@@ -17,10 +17,10 @@ public class CategorizationServiceTests {
 
     @Test
     public void shouldEmitCategorizedLineItem() {
-        Categorizer firstCategorizer = (li) -> li.getDescription().equals("Foo") ? Optional.of(Category.MORTGAGE) : Optional.empty();
-        Categorizer nextCategorizer = (li) -> li.getDescription().equals("Bar") ? Optional.of(INSURANCE) : Optional.empty();
+        Transformer<LineItem, Category> firstTransformer = (li) -> li.getDescription().equals("Foo") ? Optional.of(Category.MORTGAGE) : Optional.empty();
+        Transformer<LineItem, Category> nextTransformer = (li) -> li.getDescription().equals("Bar") ? Optional.of(INSURANCE) : Optional.empty();
 
-        var categorizationService = new CategorizationService(firstCategorizer.orElse(nextCategorizer));
+        var categorizationService = new CategorizationService(firstTransformer.orElse(nextTransformer));
 
         Flux<LineItem> lineItemFlux = Flux.just(new LineItem(
                 LocalDate.of(2021, 1, 20),

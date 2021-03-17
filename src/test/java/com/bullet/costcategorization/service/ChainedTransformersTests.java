@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ChainedCategorizerTests {
+public class ChainedTransformersTests {
 
     private LineItem produceLineItem() {
         return new LineItem(
@@ -23,24 +23,24 @@ public class ChainedCategorizerTests {
 
     @Test
     public void shouldTakeNextWhenFirstReturnsEmpty() {
-        Categorizer firstCategorizer = (li) -> Optional.empty();
-        Categorizer nextCategorizer = (li) -> Optional.of(Category.INSURANCE);
+        Transformer<LineItem, Category> firstTransformer = (li) -> Optional.empty();
+        Transformer<LineItem, Category> nextTransformer = (li) -> Optional.of(Category.INSURANCE);
 
-        var chainedCategorizer = firstCategorizer.orElse(nextCategorizer);
+        var chainedTransformer = firstTransformer.orElse(nextTransformer);
 
-        var result = chainedCategorizer.categorize(produceLineItem());
+        var result = chainedTransformer.transform(produceLineItem(), (li) -> Category.REST);
 
         assertEquals(Category.INSURANCE, result);
     }
 
     @Test
     public void shouldIgnoreNextIfFirstYieldsResult() {
-        Categorizer firstCategorizer = (li) -> Optional.of(Category.MORTGAGE);
-        Categorizer nextCategorizer = (li) -> Optional.of(Category.INSURANCE);
+        Transformer<LineItem, Category> firstTransformer = (li) -> Optional.of(Category.MORTGAGE);
+        Transformer<LineItem, Category> nextTransformer = (li) -> Optional.of(Category.INSURANCE);
 
-        var chainedCategorizer = firstCategorizer.orElse(nextCategorizer);
+        var chainedTransformer = firstTransformer.orElse(nextTransformer);
 
-        var result = chainedCategorizer.categorize(produceLineItem());
+        var result = chainedTransformer.transform(produceLineItem(), (li) -> Category.REST);
 
         assertEquals(Category.MORTGAGE, result);
     }
